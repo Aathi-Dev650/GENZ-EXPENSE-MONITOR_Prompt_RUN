@@ -1,0 +1,6 @@
+{
+  "name": "MINTMATE — Your Money, Your Moves",
+  "description": "Gen Z personal finance simulator and spending decision engine for a ₹10,000 monthly budget.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
