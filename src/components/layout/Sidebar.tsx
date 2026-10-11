@@ -9,8 +9,12 @@ import {
   Trophy,
   ChevronRight,
   Sparkles,
+  User,
+  Edit3,
 } from 'lucide-react';
 import { MascotBadge } from '../ui/MascotBadge';
+import { useAuth } from '../../context/AuthContext';
+import { useFinance } from '../../context/FinanceContext';
 
 export type NavTabId =
   | 'overview'
@@ -19,13 +23,15 @@ export type NavTabId =
   | 'goals'
   | 'subscriptions'
   | 'forecast'
-  | 'health';
+  | 'health'
+  | 'profile';
 
 interface SidebarProps {
   activeTab: NavTabId;
   onTabChange: (tab: NavTabId) => void;
   isMobileOpen?: boolean;
   onCloseMobile?: () => void;
+  onOpenEditProfile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -33,7 +39,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onTabChange,
   isMobileOpen = false,
   onCloseMobile,
+  onOpenEditProfile,
 }) => {
+  const { user } = useAuth();
+  const { playLaserSynth } = useFinance();
+
+  const handleProfileClick = () => {
+    playLaserSynth();
+    if (onOpenEditProfile) {
+      onOpenEditProfile();
+    } else {
+      handleSelect('profile');
+    }
+  };
+
   const navItems = [
     {
       id: 'overview' as NavTabId,
@@ -78,6 +97,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Rewards',
       icon: Trophy,
       badge: null,
+    },
+    {
+      id: 'profile' as NavTabId,
+      label: 'Profile',
+      icon: User,
+      badge: 'VIP',
+      badgeColor: 'text-[#00f59b]',
     },
   ];
 
@@ -185,20 +211,36 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* User profile footer */}
         <div className="p-4 border-t border-[#192233] bg-[#090d15]">
-          <div className="flex items-center justify-between p-2 rounded-2xl hover:bg-[#131b2c] transition-colors cursor-pointer">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-xs font-bold text-white shadow-md">
-                A
+          <div
+            onClick={handleProfileClick}
+            className="flex items-center justify-between p-2 rounded-2xl hover:bg-[#131b2c] transition-colors cursor-pointer group"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-xs font-bold text-white shadow-md shrink-0 group-hover:scale-105 transition-transform">
+                {user?.avatar || (user?.name ? user.name.charAt(0).toUpperCase() : '😎')}
               </div>
-              <div>
-                <div className="text-xs font-bold text-white">Aathithyan</div>
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-white truncate group-hover:text-[#00f59b] transition-colors">
+                  {user?.name || 'mint_user'}
+                </div>
                 <div className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse" />
-                  ₹10k Budget Active
+                  <span>₹{( (user?.budget || 10000) / 1000 ).toFixed(0)}k Budget</span>
                 </div>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-500" />
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleProfileClick();
+              }}
+              className="p-1.5 rounded-xl text-gray-400 hover:text-[#00f59b] hover:bg-[#00f59b]/10 transition-colors cursor-pointer"
+              title="Edit Profile Name (mint_user)"
+            >
+              <Edit3 className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </aside>

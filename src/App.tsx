@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { FinanceProvider } from './context/FinanceContext';
+import { AuthProvider } from './context/AuthContext';
 import { Sidebar, NavTabId } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { ToastContainer } from './components/layout/ToastContainer';
 import { AddTransactionModal } from './components/modals/AddTransactionModal';
 import { ProductionSettingsModal } from './components/modals/ProductionSettingsModal';
+import { EditProfileModal } from './components/modals/EditProfileModal';
 
 import { OverviewView } from './components/views/OverviewView';
 import { SimulatorView } from './components/views/SimulatorView';
@@ -13,6 +15,7 @@ import { GoalsView } from './components/views/GoalsView';
 import { SubscriptionsView } from './components/views/SubscriptionsView';
 import { ForecastView } from './components/views/ForecastView';
 import { HealthView } from './components/views/HealthView';
+import { ProfileView } from './components/views/ProfileView';
 
 import {
   Menu,
@@ -21,6 +24,7 @@ import {
   Zap,
   Target,
   LineChart,
+  User,
 } from 'lucide-react';
 
 const MainApp: React.FC = () => {
@@ -28,13 +32,14 @@ const MainApp: React.FC = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const mobileNavItems: { id: NavTabId; label: string; icon: React.FC<{ className?: string }> }[] = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'transactions', label: 'Spends', icon: ReceiptText },
     { id: 'simulator', label: 'Moves', icon: Zap },
     { id: 'goals', label: 'Goals', icon: Target },
-    { id: 'forecast', label: 'Forecast', icon: LineChart },
+    { id: 'profile', label: 'Profile', icon: User },
   ];
 
   return (
@@ -48,6 +53,7 @@ const MainApp: React.FC = () => {
         }}
         isMobileOpen={isMobileOpen}
         onCloseMobile={() => setIsMobileOpen(false)}
+        onOpenEditProfile={() => setShowProfileModal(true)}
       />
 
       {/* Main Content Area */}
@@ -68,6 +74,7 @@ const MainApp: React.FC = () => {
             onOpenQuickSimModal={() => setActiveTab('simulator')}
             onSelectNav={(tab) => setActiveTab(tab as NavTabId)}
             onOpenSettings={() => setShowSettingsModal(true)}
+            onOpenEditProfile={() => setShowProfileModal(true)}
           />
         </div>
 
@@ -93,6 +100,10 @@ const MainApp: React.FC = () => {
           {activeTab === 'forecast' && <ForecastView />}
 
           {activeTab === 'health' && <HealthView />}
+
+          {activeTab === 'profile' && (
+            <ProfileView onOpenEditModal={() => setShowProfileModal(true)} />
+          )}
         </main>
       </div>
 
@@ -128,16 +139,28 @@ const MainApp: React.FC = () => {
         onClose={() => setShowSettingsModal(false)}
       />
 
+      {/* Edit Profile Modal */}
+      <EditProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+      />
+
       {/* Global In-App Toast Stack */}
       <ToastContainer />
     </div>
   );
 };
 
+const AppContent: React.FC = () => {
+  return <MainApp />;
+};
+
 export default function App() {
   return (
     <FinanceProvider>
-      <MainApp />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </FinanceProvider>
   );
 }
